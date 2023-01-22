@@ -90,9 +90,32 @@ def respond(sock):
     log.info("Request was {}\n***\n".format(request))
 
     parts = request.split()
+
     if len(parts) > 1 and parts[0] == "GET":
-        transmit(STATUS_OK, sock)
-        transmit(CAT, sock)
+        ###### import and changes made by Cece Smith ######
+        import re 
+
+        # if request contains forbidden characters, transmit a 403
+        if re.search(r'\.{2}|~', parts[1]):
+            log.info('Forbidden request: {}'.format(request))
+            transmit(STATUS_FORBIDDEN, sock)
+            transmit('\nRequest contains forbidden characters: \
+                {} {}\n'.format(re.search(r'\.{2}|~', parts[1]), request), sock)
+
+        # if request ends with .html or .css, check if file exists in ./pages
+        elif (re.search(r'[\w]+.html$', parts[1]) or \
+            re.search(r'[\w]+.css$', parts[1])):
+            # if page exists, transmit STATUS_OK
+                transmit(STATUS_OK, sock)
+                transmit(CAT, sock)
+            # else, transmit a 404
+
+        # else, transmit a 404
+        else:
+            log.info('Request failed: {}'.format(request))
+            transmit(STATUS_NOT_FOUND, sock)
+            transmit('\nPage not found: {}\n'.format(request), sock)
+        ####################################################
     else:
         log.info("Unhandled request: {}".format(request))
         transmit(STATUS_NOT_IMPLEMENTED, sock)
