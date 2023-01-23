@@ -5,12 +5,6 @@
   This trivial implementation is not robust:  We have omitted decent
   error handling and many other things to keep the illustration as simple
   as possible.
-
-  FIXME:
-  Currently this program always serves an ascii graphic of a cat.
-  Change it to serve files if they end with .html or .css, and are
-  located in ./pages  (where '.' is the directory from which this
-  program is run).
 """
 
 import config    # Configure from .ini files and command line
@@ -81,7 +75,7 @@ STATUS_NOT_IMPLEMENTED = "HTTP/1.0 401 Not Implemented\n\n"
 def respond(sock):
     """
     This server responds only to GET requests (not PUT, POST, or UPDATE).
-    Any valid GET request is answered with an ascii graphic of a cat.
+    Serves files ending with .html or .css if they are located in ./pages.
     """
     sent = 0
     request = sock.recv(1024)  # We accept only short requests
