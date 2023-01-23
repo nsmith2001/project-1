@@ -94,21 +94,36 @@ def respond(sock):
     if len(parts) > 1 and parts[0] == "GET":
         ###### import and changes made by Cece Smith ######
         import re 
+        from os.path import isfile
+
+        # if request is empty, transmit a 403
+        if re.search(r'^\/$', parts[1]): 
+            log.info('Request failed: {}'.format(request))
+            transmit(STATUS_FORBIDDEN, sock)
+            transmit('\nRequest must contain at least 1 character. \
+                {}\n'.format(request), sock)
 
         # if request contains forbidden characters, transmit a 403
-        if re.search(r'\.{2}|~', parts[1]):
+        elif re.search(r'\.{2}|~', parts[1]):
             log.info('Forbidden request: {}'.format(request))
             transmit(STATUS_FORBIDDEN, sock)
             transmit('\nRequest contains forbidden characters: \
-                {} {}\n'.format(re.search(r'\.{2}|~', parts[1]), request), sock)
+                {} {}\n'.format(re.search(r'\.{2}|~', parts[1]), request), \
+                sock)
 
         # if request ends with .html or .css, check if file exists in ./pages
-        elif (re.search(r'[\w]+.html$', parts[1]) or \
-            re.search(r'[\w]+.css$', parts[1])):
+        elif (re.search(r'[\w]+.html$|[\w]+.css$', parts[1])):
             # if page exists, transmit STATUS_OK
+            if isfile('./pages{}'.format(parts[1])):
                 transmit(STATUS_OK, sock)
-                transmit(CAT, sock)
+                page = open('./pages{}'.format(parts[1]), 'r')
+                transmit(page.read(), sock)
+
             # else, transmit a 404
+            else:
+                log.info('Request failed: {}'.format(request))
+                transmit(STATUS_NOT_FOUND, sock)
+                transmit('\nPage not found: {}\n'.format(request), sock)
 
         # else, transmit a 404
         else:
