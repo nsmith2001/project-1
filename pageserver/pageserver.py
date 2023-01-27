@@ -86,7 +86,7 @@ def respond(sock):
     parts = request.split()
 
     if len(parts) > 1 and parts[0] == "GET":
-        ###### import and changes made by Cece Smith ######
+        ###### imports and changes made by Cece Smith ######
         import re 
         from os.path import isfile
 
@@ -108,7 +108,7 @@ def respond(sock):
         # if request ends with .html or .css, check if file exists in ./pages
         elif (re.search(r'[\w]+.html$|[\w]+.css$', parts[1])):
             # if page exists, transmit STATUS_OK
-            if isfile('./pages{}'.format(parts[1])):
+            if isfile('{}{}'.format(get_options().DOCROOT, parts[1])):
                 transmit(STATUS_OK, sock)
                 page = open('./pages{}'.format(parts[1]), 'r')
                 transmit(page.read(), sock)
